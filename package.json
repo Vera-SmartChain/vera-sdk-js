@@ -1,0 +1,76 @@
+{
+  "name": "@verachain/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript/JavaScript SDK for VERA SmartChain — read-only, keyless, zero runtime dependencies",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./viem": {
+      "types": "./dist/types/viem.d.ts",
+      "import": "./dist/esm/viem.js",
+      "require": "./dist/cjs/viem.js"
+    },
+    "./ethers": {
+      "types": "./dist/types/ethers.d.ts",
+      "import": "./dist/esm/ethers.js",
+      "require": "./dist/cjs/ethers.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build:esm": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && node scripts/build-post.js",
+    "build": "npm run build:esm && npm run build:cjs",
+    "test": "npm run build && tsc -p tsconfig.test.json && node --test dist-test/tests/*.test.js"
+  },
+  "keywords": [
+    "vera",
+    "verachain",
+    "smartchain",
+    "sdk",
+    "web3",
+    "blockchain",
+    "rpc",
+    "faucet"
+  ],
+  "author": "VERA SmartChain Core Team <dev@verachain.cloud>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vera-SmartChain/vera-sdk-js.git"
+  },
+  "peerDependencies": {
+    "ethers": "^6.0.0",
+    "viem": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ethers": {
+      "optional": true
+    },
+    "viem": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "esbuild": "^0.25.0",
+    "ethers": "^6.13.4",
+    "typescript": "^5.7.3",
+    "viem": "^2.21.0"
+  }
+}

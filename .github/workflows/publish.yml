@@ -1,0 +1,75 @@
+name: Publish Package to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js 22 with npm registry
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build dual ESM, CJS and TypeScript declarations
+        run: npm run build
+
+      - name: Compile test suite
+        run: npx tsc -p tsconfig.test.json
+
+      - name: Run offline acceptance tests (zero faucet expenditure)
+        run: |
+          node --test dist-test/tests/t1_addresses.test.js dist-test/tests/t3_units.test.js dist-test/tests/t7_package_compat.test.js dist-test/tests/t8_robustness.test.js dist-test/tests/t9_secret_scan.test.js
+
+      - name: Package tarball
+        run: npm pack
+
+      - name: Verify package reproducibility & SHA-256 integrity
+        run: |
+          TARBALL="verachain-sdk-0.1.0.tgz"
+          if [ ! -f "$TARBALL" ]; then
+            echo "::error::Tarball $TARBALL was not generated!"
+            exit 1
+          fi
+
+          EXPECTED_SHA256="c309ff53332724eb2f884e55ffed9af21d4132e7b91208341fe948e573c19aa6"
+          ACTUAL_SHA256=$(sha256sum "$TARBALL" | awk '{print $1}')
+
+          echo "========================================================"
+          echo "Expected SHA-256: $EXPECTED_SHA256"
+          echo "Actual SHA-256:   $ACTUAL_SHA256"
+          echo "========================================================"
+
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "::error::Package SHA-256 mismatch! Build is not bit-for-bit identical to the approved release."
+            exit 1
+          fi
+
+          echo "✅ Package integrity verified bit-for-bit ($ACTUAL_SHA256)"
+
+      - name: Publish to npm registry with provenance
+        run: |
+          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "Publishing via temporary granular NPM_TOKEN..."
+            NODE_AUTH_TOKEN="${{ secrets.NPM_TOKEN }}" npm publish verachain-sdk-0.1.0.tgz --provenance --access public
+          else
+            echo "Publishing via Trusted Publishing (OIDC id-token)..."
+            npm publish verachain-sdk-0.1.0.tgz --provenance --access public
+          fi
