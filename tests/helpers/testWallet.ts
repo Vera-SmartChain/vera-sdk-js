@@ -1,9 +1,11 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { Wallet, HDNodeWallet } from 'ethers';
 import { requestFaucet } from '../../src/faucet.js';
 import type { FaucetResponse } from '../../src/types.js';
 
-const cacheFile = 'C:/Users/Carlos/.gemini/antigravity-ide/brain/b49f9319-ee9a-48b5-8d70-5f77ba1ba75c/scratch/ephemeral_test_wallet.json';
+const cacheFile = process.env.VERA_TEST_WALLET_FILE || path.join(os.tmpdir(), 'vera_ephemeral_test_wallet.json');
 
 export interface SharedWalletData {
   address: string;

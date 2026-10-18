@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as esbuild from 'esbuild';
@@ -109,7 +110,7 @@ test('T7 — Package Audit, ESM/CJS Compatibility & Browser Bundle', async (t) =
   });
 
   await t.test('Dual ESM and CJS imports across Node 18 and Node 20', () => {
-    const nodeBinsDir = 'C:/Users/Carlos/.gemini/antigravity-ide/brain/b49f9319-ee9a-48b5-8d70-5f77ba1ba75c/scratch/node_bins';
+    const nodeBinsDir = process.env.NODE_BINS_DIR || path.join(os.tmpdir(), 'node_bins');
     const versions = [
       { name: 'Node 18', bin: path.join(nodeBinsDir, 'node18.exe') },
       { name: 'Node 20', bin: path.join(nodeBinsDir, 'node20.exe') },

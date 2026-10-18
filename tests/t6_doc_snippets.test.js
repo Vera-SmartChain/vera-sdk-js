@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
-const scratchDir = 'C:/Users/Carlos/.gemini/antigravity-ide/brain/b49f9319-ee9a-48b5-8d70-5f77ba1ba75c/scratch';
+import os from 'node:os';
+const scratchDir = process.env.VERA_SCRATCH_DIR || os.tmpdir();
 test('T6 — Automated Extraction and Live Execution of all Doc and README code snippets', async (t) => {
     const tempSnippetDir = path.join(scratchDir, 't6_snippets');
     fs.mkdirSync(tempSnippetDir, { recursive: true });

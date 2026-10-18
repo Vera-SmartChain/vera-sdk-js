@@ -5,6 +5,8 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import os from 'node:os';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Handle running from dist-test/tests/ or tests/
@@ -12,7 +14,7 @@ const repoRoot = fs.existsSync(path.join(__dirname, '..', 'README.md'))
   ? path.resolve(__dirname, '..')
   : path.resolve(__dirname, '..', '..');
 
-const scratchDir = 'C:/Users/Carlos/.gemini/antigravity-ide/brain/b49f9319-ee9a-48b5-8d70-5f77ba1ba75c/scratch';
+const docsDraftPath = process.env.VERA_DOCS_DRAFT_FILE || path.join(os.tmpdir(), 'index.html.sdk-draft');
 
 test('T6 — Automated Extraction and Live Execution of all Doc and README code snippets', async (t) => {
   const tempSnippetDir = path.join(repoRoot, '.tmp_snippets');
@@ -58,8 +60,8 @@ test('T6 — Automated Extraction and Live Execution of all Doc and README code 
 
   // 2. Extract and execute from docs draft (index.html.sdk-draft)
   await t.test('All TypeScript / JavaScript snippets in docs draft execute successfully', () => {
-    const draftPath = path.join(scratchDir, 'index.html.sdk-draft');
-    assert.ok(fs.existsSync(draftPath), 'Draft index.html.sdk-draft must exist');
+    const draftPath = docsDraftPath;
+    assert.ok(fs.existsSync(draftPath), `Draft index.html.sdk-draft must exist at ${draftPath}`);
     const content = fs.readFileSync(draftPath, 'utf8');
 
     // Extract the sdk-js section
